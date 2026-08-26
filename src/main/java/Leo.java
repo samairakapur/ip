@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 public class Leo {
     public static void main(String[] args) {
-        String[] toDO = new String[100];
+        Task[] toDO = new Task[100];
         int itemCount = 0;
 
         String banner = " _                \n"
@@ -27,8 +27,33 @@ public class Leo {
                     System.out.println((i + 1) + ". " + toDO[i]);
                 }
 
+            } else if (input.startsWith("mark ")) {
+                int taskNumber = Integer.parseInt(input.substring(5));
+                int taskIndex = taskNumber - 1;
+
+                if (taskIndex >= 0 && taskIndex < itemCount) {
+                    toDO[taskIndex].markAsDone();
+
+                    System.out.println("Nice! I've marked this task as done:");
+                    System.out.println(toDO[taskIndex]);
+                } else {
+                    System.out.println("That task number does not exist.");
+                }
+
+            } else if (input.startsWith("unmark ")) {
+                int taskNumber = Integer.parseInt(input.substring(7));
+                int taskIndex = taskNumber - 1;
+
+                if (taskIndex >= 0 && taskIndex < itemCount) {
+                    toDO[taskIndex].markAsNotDone();
+
+                    System.out.println("OK, I've marked this task as not done yet:");
+                    System.out.println(toDO[taskIndex]);
+                } else {
+                    System.out.println("That task number does not exist.");
+                }
             } else {
-                toDO[itemCount] = input;
+                toDO[itemCount] = new Task(input);
                 itemCount++;
                 System.out.println("Got it! I've added this to your to-do list: ");
                 System.out.println("  " + input);
