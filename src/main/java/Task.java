@@ -23,6 +23,20 @@ public class Task {
         return "T";
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public boolean isDone() {
+        return isDone;
+    }
+
+    public String toFileString() {
+        return getType() + " | "
+                + (isDone ? "1" : "0") + " | "
+                + description;
+    }
+
     @Override
     public String toString() {
         return "[" + getType() + "][" + getStatus()

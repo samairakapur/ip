@@ -1,9 +1,19 @@
 import java.util.Scanner;
+import java.io.IOException;
 
 public class Leo {
     public static void main(String[] args) {
         Task[] toDO = new Task[100];
-        int itemCount = 0;
+        int itemCount;
+
+        try {
+            itemCount = Storage.loadTasks(toDO);
+        } catch (IOException e) {
+            System.out.println(
+                    "I couldn't load your saved tasks: " + e.getMessage()
+            );
+            itemCount = 0;
+        }
 
         String banner = " _                \n"
                 + "| |    ___  ___   \n"
@@ -52,6 +62,7 @@ public class Leo {
                     }
 
                     toDO[taskIndex].markAsDone();
+                    Storage.saveTasks(toDO, itemCount);
 
                     System.out.println(
                             "Nice! I've marked this task as done:"
@@ -77,6 +88,7 @@ public class Leo {
                     }
 
                     toDO[taskIndex].markAsNotDone();
+                    Storage.saveTasks(toDO, itemCount);
 
                     System.out.println(
                             "OK, I've marked this task as not done yet:"
@@ -105,6 +117,7 @@ public class Leo {
                     System.out.println("  " + toDO[itemCount]);
 
                     itemCount++;
+                    Storage.saveTasks(toDO, itemCount);
                     System.out.println(
                             "Now you have " + itemCount + " tasks in the list."
                     );
@@ -147,6 +160,7 @@ public class Leo {
                     System.out.println("  " + toDO[itemCount]);
 
                     itemCount++;
+                    Storage.saveTasks(toDO, itemCount);
                     System.out.println(
                             "Now you have " + itemCount + " tasks in the list."
                     );
@@ -207,6 +221,7 @@ public class Leo {
                     System.out.println("  " + toDO[itemCount]);
 
                     itemCount++;
+                    Storage.saveTasks(toDO, itemCount);
                     System.out.println(
                             "Now you have " + itemCount + " tasks in the list."
                     );
@@ -237,6 +252,7 @@ public class Leo {
 
                     toDO[itemCount - 1] = null;
                     itemCount--;
+                    Storage.saveTasks(toDO, itemCount);
 
                     System.out.println("Okay, noted. I've removed this task:");
                     System.out.println("  " + deletedTask);
@@ -251,6 +267,10 @@ public class Leo {
 
             } catch (LeoException e) {
                 System.out.println(e.getMessage());
+            } catch (IOException e) {
+                System.out.println(
+                        "I couldn't update the saved task file: " + e.getMessage()
+                );
             }
         }
 
