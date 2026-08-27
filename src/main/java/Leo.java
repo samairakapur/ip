@@ -52,11 +52,49 @@ public class Leo {
                 } else {
                     System.out.println("That task number does not exist.");
                 }
-            } else {
-                toDO[itemCount] = new Task(input);
+            } else if (input.startsWith("todo ")) {
+                String description = input.substring(5).trim();
+
+                toDO[itemCount] = new Todo(description);
+
+                System.out.println("Got it. I've added this task:");
+                System.out.println("  " + toDO[itemCount]);
+
                 itemCount++;
-                System.out.println("Got it! I've added this to your to-do list: ");
-                System.out.println("  " + input);
+                System.out.println("Now you have " + itemCount + " tasks in the list.");
+            } else if (input.startsWith("deadline ")) {
+            String taskInformation = input.substring(9).trim();
+            String[] parts = taskInformation.split(" /by ", 2);
+
+            String description = parts[0].trim();
+            String by = parts[1].trim();
+
+            toDO[itemCount] = new Deadline(description, by);
+
+            System.out.println("Got it. I've added this task:");
+            System.out.println("  " + toDO[itemCount]);
+
+            itemCount++;
+            System.out.println("Now you have " + itemCount + " tasks in the list.");
+        } else if (input.startsWith("event ")) {
+            String taskInformation = input.substring(6).trim();
+            String[] fromParts = taskInformation.split(" /from ", 2);
+
+            String description = fromParts[0].trim();
+            String[] timeParts = fromParts[1].split(" /to ", 2);
+
+            String from = timeParts[0].trim();
+            String to = timeParts[1].trim();
+
+            toDO[itemCount] = new Event(description, from, to);
+
+            System.out.println("Got it. I've added this task:");
+            System.out.println("  " + toDO[itemCount]);
+
+            itemCount++;
+            System.out.println("Now you have " + itemCount + " tasks in the list.");
+        } else {
+                System.out.println("Sorry, I don't recognise that command.");
             }
             //echo(input);
         }
