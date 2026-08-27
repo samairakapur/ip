@@ -60,8 +60,7 @@ public class Leo {
 
                 } else if (input.equals("unmark")) {
                     throw new LeoException(
-                            "Please specify which task to unmark, "
-                                    + "for example: unmark 2"
+                            "Please specify which task to unmark, " + "for example: unmark 2"
                     );
 
                 } else if (input.startsWith("unmark ")) {
@@ -112,8 +111,7 @@ public class Leo {
 
                 } else if (input.equals("deadline")) {
                     throw new LeoException(
-                            "Please enter a deadline in this format: "
-                                    + "deadline DESCRIPTION /by TIME"
+                            "Please enter a deadline in this format: " + "deadline DESCRIPTION /by TIME"
                     );
 
                 } else if (input.startsWith("deadline ")) {
@@ -121,8 +119,7 @@ public class Leo {
 
                     if (!taskInformation.contains(" /by ")) {
                         throw new LeoException(
-                                "Please enter a deadline in this format: "
-                                        + "deadline DESCRIPTION /by TIME"
+                                "Please enter a deadline in this format: " + "deadline DESCRIPTION /by TIME"
                         );
                     }
 
@@ -156,8 +153,7 @@ public class Leo {
 
                 } else if (input.equals("event")) {
                     throw new LeoException(
-                            "Please enter an event in this format: "
-                                    + "event DESCRIPTION /from START /to END"
+                            "Please enter an event in this format: " + "event DESCRIPTION /from START /to END"
                     );
 
                 } else if (input.startsWith("event ")) {
@@ -165,8 +161,7 @@ public class Leo {
 
                     if (!taskInformation.contains(" /from ")) {
                         throw new LeoException(
-                                "Please enter an event in this format: "
-                                        + "event DESCRIPTION /from START /to END"
+                                "Please enter an event in this format: " + "event DESCRIPTION /from START /to END"
                         );
                     }
 
@@ -178,8 +173,7 @@ public class Leo {
 
                     if (!eventTimes.contains(" /to ")) {
                         throw new LeoException(
-                                "Please enter an event in this format: "
-                                        + "event DESCRIPTION /from START /to END"
+                                "Please enter an event in this format: " + "event DESCRIPTION /from START /to END"
                         );
                     }
 
@@ -195,15 +189,13 @@ public class Leo {
 
                     if (from.isEmpty()) {
                         throw new LeoException(
-                                "Please specify the event's starting time "
-                                        + "after '/from'."
+                                "Please specify the event's starting time " + "after '/from'."
                         );
                     }
 
                     if (to.isEmpty()) {
                         throw new LeoException(
-                                "Please specify the event's ending time "
-                                        + "after '/to'."
+                                "Please specify the event's ending time " + "after '/to'."
                         );
                     }
 
@@ -219,6 +211,38 @@ public class Leo {
                             "Now you have " + itemCount + " tasks in the list."
                     );
 
+                } else if (input.equals("delete")) {
+                    throw new LeoException(
+                            "Please specify which task to delete, for example: delete 2"
+                    );
+
+                } else if (input.startsWith("delete ")) {
+                    int taskNumber = parseTaskNumber(
+                            input.substring(7),
+                            "delete"
+                    );
+                    int taskIndex = taskNumber - 1;
+
+                    if (taskIndex < 0 || taskIndex >= itemCount) {
+                        throw new LeoException(
+                                "That task number does not exist."
+                        );
+                    }
+
+                    Task deletedTask = toDO[taskIndex];
+
+                    for (int i = taskIndex; i < itemCount - 1; i++) {
+                        toDO[i] = toDO[i + 1];
+                    }
+
+                    toDO[itemCount - 1] = null;
+                    itemCount--;
+
+                    System.out.println("Okay, noted. I've removed this task:");
+                    System.out.println("  " + deletedTask);
+                    System.out.println(
+                            "Now you have " + itemCount + " tasks in the list."
+                    );
                 } else {
                     throw new LeoException(
                             "Sorry, I don't understand what you are trying to say."
@@ -241,7 +265,7 @@ public class Leo {
 
             if (taskNumber <= 0) {
                 throw new LeoException(
-                        "The task number must be greater than zero."
+                        "The task number cannot be greater than zero."
                 );
             }
 
@@ -250,7 +274,7 @@ public class Leo {
         } catch (NumberFormatException e) {
             throw new LeoException(
                     "Please enter a valid task number, for example: "
-                            + command + " 2"
+                            + command + " 1"
             );
         }
     }
