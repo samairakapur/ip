@@ -1,5 +1,6 @@
 import java.util.Scanner;
 import java.io.IOException;
+import java.time.format.DateTimeParseException;
 
 public class Leo {
     public static void main(String[] args) {
@@ -271,6 +272,10 @@ public class Leo {
                 System.out.println(
                         "I couldn't update the saved task file: " + e.getMessage()
                 );
+            } catch (DateTimeParseException e) {
+            System.out.println(
+                    "Please enter dates and times in the format yyyy-MM-dd HHmm."
+            );
             }
         }
 
