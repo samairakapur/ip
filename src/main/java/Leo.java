@@ -23,13 +23,15 @@ public class Leo {
 
         while (true) {
             String input = ui.readCommand();
+            String commandWord = Parser.getCommandWord(input);
+            String arguments = Parser.getArguments(input);
 
             try {
-                if (input.equals("bye")) {
+                if (commandWord.equals("bye")) {
                     ui.showGoodbye();
                     break;
 
-                } else if (input.equals("list")) {
+                } else if (commandWord.equals("list")) {
                     ui.showMessage(
                             "Here are the things I've saved in your to-do list so far:"
                     );
@@ -38,16 +40,14 @@ public class Leo {
                         ui.showMessage((i + 1) + ". " + tasks.get(i));
                     }
 
-                } else if (input.equals("mark")) {
-                    throw new LeoException(
-                            "Please specify which task to mark, for example: mark 2"
-                    );
+                } else if (commandWord.equals("mark")) {
+                    if (arguments.isEmpty()) {
+                        throw new LeoException(
+                                "Please specify which task to mark, for example: mark 2"
+                        );
+                    }
 
-                } else if (input.startsWith("mark ")) {
-                    int taskIndex = parseTaskNumber(
-                            input.substring(5),
-                            "mark"
-                    ) - 1;
+                    int taskIndex = parseTaskNumber(arguments, "mark") - 1;
 
                     if (!tasks.isValidIndex(taskIndex)) {
                         throw new LeoException(
@@ -61,16 +61,14 @@ public class Leo {
                     ui.showMessage("Nice! I've marked this task as done:");
                     ui.showMessage(tasks.get(taskIndex).toString());
 
-                } else if (input.equals("unmark")) {
-                    throw new LeoException(
-                            "Please specify which task to unmark, for example: unmark 2"
-                    );
+                } else if (commandWord.equals("unmark")) {
+                    if (arguments.isEmpty()) {
+                        throw new LeoException(
+                                "Please specify which task to unmark, for example: unmark 2"
+                        );
+                    }
 
-                } else if (input.startsWith("unmark ")) {
-                    int taskIndex = parseTaskNumber(
-                            input.substring(7),
-                            "unmark"
-                    ) - 1;
+                    int taskIndex = parseTaskNumber(arguments, "unmark") - 1;
 
                     if (!tasks.isValidIndex(taskIndex)) {
                         throw new LeoException(
@@ -84,21 +82,14 @@ public class Leo {
                     ui.showMessage("OK, I've marked this task as not done yet:");
                     ui.showMessage(tasks.get(taskIndex).toString());
 
-                } else if (input.equals("todo")) {
-                    throw new LeoException(
-                            "The description of a todo cannot be empty."
-                    );
-
-                } else if (input.startsWith("todo ")) {
-                    String description = input.substring(5).trim();
-
-                    if (description.isEmpty()) {
+                } else if (commandWord.equals("todo")) {
+                    if (arguments.isEmpty()) {
                         throw new LeoException(
                                 "The description of a todo cannot be empty."
                         );
                     }
 
-                    tasks.add(new Todo(description));
+                    tasks.add(new Todo(arguments));
 
                     ui.showMessage("Got it. I've added this task:");
                     ui.showMessage("  " + tasks.get(tasks.size() - 1));
@@ -108,21 +99,14 @@ public class Leo {
                             "Now you have " + tasks.size() + " tasks in the list."
                     );
 
-                } else if (input.equals("deadline")) {
-                    throw new LeoException(
-                            "Please enter a deadline in this format: deadline DESCRIPTION /by TIME"
-                    );
-
-                } else if (input.startsWith("deadline ")) {
-                    String taskInformation = input.substring(9).trim();
-
-                    if (!taskInformation.contains(" /by ")) {
+                } else if (commandWord.equals("deadline")) {
+                    if (arguments.isEmpty() || !arguments.contains(" /by ")) {
                         throw new LeoException(
                                 "Please enter a deadline in this format: deadline DESCRIPTION /by TIME"
                         );
                     }
 
-                    String[] parts = taskInformation.split(" /by ", 2);
+                    String[] parts = arguments.split(" /by ", 2);
                     String description = parts[0].trim();
                     String by = parts[1].trim();
 
@@ -148,21 +132,14 @@ public class Leo {
                             "Now you have " + tasks.size() + " tasks in the list."
                     );
 
-                } else if (input.equals("event")) {
-                    throw new LeoException(
-                            "Please enter an event in this format: event DESCRIPTION /from START /to END"
-                    );
-
-                } else if (input.startsWith("event ")) {
-                    String taskInformation = input.substring(6).trim();
-
-                    if (!taskInformation.contains(" /from ")) {
+                } else if (commandWord.equals("event")) {
+                    if (arguments.isEmpty() || !arguments.contains(" /from ")) {
                         throw new LeoException(
                                 "Please enter an event in this format: event DESCRIPTION /from START /to END"
                         );
                     }
 
-                    String[] fromParts = taskInformation.split(" /from ", 2);
+                    String[] fromParts = arguments.split(" /from ", 2);
                     String description = fromParts[0].trim();
                     String eventTimes = fromParts[1].trim();
 
@@ -204,16 +181,14 @@ public class Leo {
                             "Now you have " + tasks.size() + " tasks in the list."
                     );
 
-                } else if (input.equals("delete")) {
-                    throw new LeoException(
-                            "Please specify which task to delete, for example: delete 2"
-                    );
+                } else if (commandWord.equals("delete")) {
+                    if (arguments.isEmpty()) {
+                        throw new LeoException(
+                                "Please specify which task to delete, for example: delete 2"
+                        );
+                    }
 
-                } else if (input.startsWith("delete ")) {
-                    int taskIndex = parseTaskNumber(
-                            input.substring(7),
-                            "delete"
-                    ) - 1;
+                    int taskIndex = parseTaskNumber(arguments, "delete") - 1;
 
                     if (!tasks.isValidIndex(taskIndex)) {
                         throw new LeoException(
@@ -251,7 +226,7 @@ public class Leo {
         ui.close();
     }
 
-    // Converts the task-number portion of a command into an integer.
+    // Converts a task-number argument into an integer.
     public static int parseTaskNumber(String numberText, String command)
             throws LeoException {
         try {
