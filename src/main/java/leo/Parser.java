@@ -1,3 +1,5 @@
+package leo;
+
 /**
  * Parses raw user input into a command word and its remaining
  * arguments, so that Leo does not need to inspect the raw input string
