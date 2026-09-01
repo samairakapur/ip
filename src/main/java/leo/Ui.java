@@ -37,31 +37,42 @@ public class Ui {
                 + "| |__|  __/ (_) | \n"
                 + "|_____\\___|\\___/  \n";
 
-        System.out.println(banner);
-        System.out.println(LINE);
-        System.out.println("Hello! I'm Leo.");
-        System.out.println("How are you doing today, and how may I help?");
-        System.out.println(LINE);
+        showMessage(
+                banner,
+                LINE,
+                "Hello! I'm Leo.",
+                "How are you doing today, and how may I help?",
+                LINE
+        );
     }
 
     /**
-     * Displays a message to the user.
+     * Displays one or more messages to the user, one per line, in the
+     * order given. Accepting a variable number of arguments (varargs)
+     * lets a single call replace what would otherwise be several
+     * separate {@code showMessage} calls whenever a command needs to
+     * show more than one line of related output (e.g. "task added" +
+     * the task itself + the new task count) - see the call sites in
+     * {@link Leo} for examples. A single message still works exactly
+     * as before, since Java treats one argument as a one-element array.
      *
-     * @param message message to display
+     * @param messages message(s) to display, each on its own line
      */
-    public void showMessage(String message) {
-        System.out.println(message);
+    public void showMessage(String... messages) {
+        for (String message : messages) {
+            System.out.println(message);
+        }
     }
 
     /**
      * Displays Leo's goodbye message.
      */
     public void showGoodbye() {
-        System.out.println(LINE);
-        System.out.println(
-                "Hope to see you again soon! Have a great day ahead."
+        showMessage(
+                LINE,
+                "Hope to see you again soon! Have a great day ahead.",
+                LINE
         );
-        System.out.println(LINE);
     }
 
     /**

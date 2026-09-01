@@ -66,8 +66,10 @@ public class Leo {
                     tasks.get(taskIndex).markAsDone();
                     Storage.saveTasks(tasks.toArray(), tasks.size());
 
-                    ui.showMessage("Nice! I've marked this task as done:");
-                    ui.showMessage(tasks.get(taskIndex).toString());
+                    ui.showMessage(
+                            "Nice! I've marked this task as done:",
+                            tasks.get(taskIndex).toString()
+                    );
 
                 } else if (commandWord.equals("unmark")) {
                     if (arguments.isEmpty()) {
@@ -87,8 +89,10 @@ public class Leo {
                     tasks.get(taskIndex).markAsNotDone();
                     Storage.saveTasks(tasks.toArray(), tasks.size());
 
-                    ui.showMessage("OK, I've marked this task as not done yet:");
-                    ui.showMessage(tasks.get(taskIndex).toString());
+                    ui.showMessage(
+                            "OK, I've marked this task as not done yet:",
+                            tasks.get(taskIndex).toString()
+                    );
 
                 } else if (commandWord.equals("todo")) {
                     if (arguments.isEmpty()) {
@@ -98,12 +102,11 @@ public class Leo {
                     }
 
                     tasks.add(new Todo(arguments));
-
-                    ui.showMessage("Got it. I've added this task:");
-                    ui.showMessage("  " + tasks.get(tasks.size() - 1));
-
                     Storage.saveTasks(tasks.toArray(), tasks.size());
+
                     ui.showMessage(
+                            "Got it. I've added this task:",
+                            "  " + tasks.get(tasks.size() - 1),
                             "Now you have " + tasks.size() + " tasks in the list."
                     );
 
@@ -131,12 +134,11 @@ public class Leo {
                     }
 
                     tasks.add(new Deadline(description, by));
-
-                    ui.showMessage("Got it. I've added this task:");
-                    ui.showMessage("  " + tasks.get(tasks.size() - 1));
-
                     Storage.saveTasks(tasks.toArray(), tasks.size());
+
                     ui.showMessage(
+                            "Got it. I've added this task:",
+                            "  " + tasks.get(tasks.size() - 1),
                             "Now you have " + tasks.size() + " tasks in the list."
                     );
 
@@ -180,12 +182,11 @@ public class Leo {
                     }
 
                     tasks.add(new Event(description, from, to));
-
-                    ui.showMessage("Got it. I've added this task:");
-                    ui.showMessage("  " + tasks.get(tasks.size() - 1));
-
                     Storage.saveTasks(tasks.toArray(), tasks.size());
+
                     ui.showMessage(
+                            "Got it. I've added this task:",
+                            "  " + tasks.get(tasks.size() - 1),
                             "Now you have " + tasks.size() + " tasks in the list."
                     );
 
@@ -207,9 +208,9 @@ public class Leo {
                     Task deletedTask = tasks.remove(taskIndex);
                     Storage.saveTasks(tasks.toArray(), tasks.size());
 
-                    ui.showMessage("Okay, noted. I've removed this task:");
-                    ui.showMessage("  " + deletedTask);
                     ui.showMessage(
+                            "Okay, noted. I've removed this task:",
+                            "  " + deletedTask,
                             "Now you have " + tasks.size() + " tasks in the list."
                     );
 
