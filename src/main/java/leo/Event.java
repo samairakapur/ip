@@ -8,9 +8,9 @@ import java.time.format.DateTimeFormatter;
  */
 public class Event extends Task {
     /** The date/time this event starts. */
-    protected LocalDateTime from;
+    private LocalDateTime from;
     /** The date/time this event ends. */
-    protected LocalDateTime to;
+    private LocalDateTime to;
     private static final DateTimeFormatter INPUT_FORMAT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
 
