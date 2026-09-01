@@ -3,6 +3,11 @@ package leo;
 import java.io.IOException;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Entry point for the Leo chatbot. Loads any previously-saved tasks,
+ * then repeatedly reads a command from the user, executes it against
+ * the in-memory task list, and saves the result back to disk.
+ */
 public class Leo {
     public static void main(String[] args) {
         Ui ui = new Ui();
@@ -228,7 +233,17 @@ public class Leo {
         ui.close();
     }
 
-    // Converts a task-number argument into an integer.
+    /**
+     * Converts a task-number argument (e.g. the "2" in "mark 2") into
+     * a positive integer.
+     *
+     * @param numberText the raw argument text to parse
+     * @param command name of the command this argument belongs to,
+     *     used only to build a helpful error message
+     * @return the parsed task number
+     * @throws LeoException if numberText is not a valid positive
+     *     integer
+     */
     public static int parseTaskNumber(String numberText, String command)
             throws LeoException {
         try {
