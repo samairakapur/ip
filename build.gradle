@@ -28,6 +28,20 @@ run {
     standardInput = System.in
 }
 
+// A-Jar: make `gradle jar` produce a directly-runnable jar
+// (`java -jar build/libs/ip.jar`). This project currently has no
+// third-party runtime dependencies (only a test-scoped JUnit), so a
+// plain jar with a Main-Class manifest entry is sufficient - no need
+// for a "fat jar" plugin like Shadow to bundle dependency classes. If
+// a runtime dependency is added later (e.g. JavaFX), switch to the
+// Shadow plugin's shadowJar task instead, per the course's Gradle
+// tutorial.
+jar {
+    manifest {
+        attributes 'Main-Class': 'leo.Leo'
+    }
+}
+
 // No explicit toolchain/sourceCompatibility is pinned here: Gradle uses
 // whichever JDK invokes it, matching the "use JDK 25" setup already
 // described in AGENTS.md/README for this project. Add a
