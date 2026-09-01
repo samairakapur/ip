@@ -2,6 +2,7 @@ package leo;
 
 import java.io.IOException;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 /**
  * Entry point for the Leo chatbot. Loads any previously-saved tasks,
@@ -211,6 +212,27 @@ public class Leo {
                     ui.showMessage(
                             "Now you have " + tasks.size() + " tasks in the list."
                     );
+
+                } else if (commandWord.equals("find")) {
+                    if (arguments.isEmpty()) {
+                        throw new LeoException(
+                                "Please specify a keyword to search for, for example: find book"
+                        );
+                    }
+
+                    List<Task> matches = tasks.find(arguments);
+
+                    if (matches.isEmpty()) {
+                        ui.showMessage(
+                                "I couldn't find any matching tasks in your list."
+                        );
+                    } else {
+                        ui.showMessage("Here are the matching tasks in your list:");
+
+                        for (int i = 0; i < matches.size(); i++) {
+                            ui.showMessage((i + 1) + ". " + matches.get(i));
+                        }
+                    }
                 } else {
                     throw new LeoException(
                             "Sorry, I don't understand what you are trying to say."
