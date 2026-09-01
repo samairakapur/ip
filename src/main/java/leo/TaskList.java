@@ -84,4 +84,24 @@ public class TaskList {
     public Task[] toArray() {
         return tasks.toArray(new Task[0]);
     }
+
+    /**
+     * Returns the tasks whose description contains the given keyword,
+     * in their original order. Matching is a plain case-sensitive
+     * substring check.
+     *
+     * @param keyword text to search for within task descriptions
+     * @return a new list of the matching tasks (empty if none match)
+     */
+    public List<Task> find(String keyword) {
+        List<Task> matches = new ArrayList<>();
+
+        for (Task task : tasks) {
+            if (task.getDescription().contains(keyword)) {
+                matches.add(task);
+            }
+        }
+
+        return matches;
+    }
 }
