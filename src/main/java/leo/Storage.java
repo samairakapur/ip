@@ -7,10 +7,24 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles loading tasks from, and saving tasks to, the save file on
+ * disk (data/leo.txt, relative to the project root).
+ */
 public class Storage {
     private static final Path FILE_PATH =
             Paths.get("data", "leo.txt");
 
+    /**
+     * Loads previously-saved tasks from the save file into the given
+     * array, creating an empty save file first if one does not already
+     * exist.
+     *
+     * @param tasks array to load tasks into, starting at index 0
+     * @return the number of tasks loaded
+     * @throws IOException if the save file cannot be read, or contains
+     *     a line that cannot be parsed as a task
+     */
     public static int loadTasks(Task[] tasks) throws IOException {
         createDataFileIfMissing();
 
@@ -30,6 +44,14 @@ public class Storage {
         return itemCount;
     }
 
+    /**
+     * Saves the first {@code itemCount} tasks in the given array to the
+     * save file, overwriting its previous contents.
+     *
+     * @param tasks array containing the tasks to save
+     * @param itemCount number of tasks to save, starting at index 0
+     * @throws IOException if the save file cannot be written to
+     */
     public static void saveTasks(Task[] tasks, int itemCount)
             throws IOException {
         createDataFileIfMissing();
@@ -43,6 +65,9 @@ public class Storage {
         Files.write(FILE_PATH, lines);
     }
 
+    // Creates the save file (and its parent data/ directory) if either
+    // does not already exist, so loadTasks/saveTasks never have to
+    // handle a missing file themselves.
     private static void createDataFileIfMissing() throws IOException {
         Path parentDirectory = FILE_PATH.getParent();
 
@@ -55,6 +80,8 @@ public class Storage {
         }
     }
 
+    // Parses one save-file line (e.g. "D | 0 | return book | ...")
+    // back into the matching Task subclass.
     private static Task parseTask(String line) throws IOException {
         String[] parts = line.split(" \\| ", -1);
 
