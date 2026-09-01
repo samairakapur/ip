@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'checkstyle'
 }
 
 repositories {
@@ -14,6 +15,16 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+// A-CheckStyle: run static analysis against the SE-EDU Java coding
+// standard (https://se-education.org/guides/conventions/java/) using
+// the checker config in config/checkstyle/checkstyle.xml. `gradle check`
+// (which `gradle build` already runs) will now also run
+// checkstyleMain/checkstyleTest; run `gradle checkstyleMain` on its own
+// to check only the main sources.
+checkstyle {
+    toolVersion = '10.12.4'
 }
 
 application {
