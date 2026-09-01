@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    // Entry point of the application, per A-Packages' leo package.
+    mainClass = 'leo.Leo'
+}
+
+// Leo reads commands from standard input; Gradle's `run` task does not
+// forward the console's stdin by default, so it must be wired up
+// explicitly for the app to work interactively via `gradle run`.
+run {
+    standardInput = System.in
+}
+
+// No explicit toolchain/sourceCompatibility is pinned here: Gradle uses
+// whichever JDK invokes it, matching the "use JDK 25" setup already
+// described in AGENTS.md/README for this project. Add a
+// `java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }`
+// block later if you want Gradle to strictly enforce that version.
