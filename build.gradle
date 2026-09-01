@@ -7,6 +7,15 @@ repositories {
     mavenCentral()
 }
 
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
+
 application {
     // Entry point of the application, per A-Packages' leo package.
     mainClass = 'leo.Leo'
