@@ -14,24 +14,43 @@ dependencies {
 
     // Level-10: JavaFX, for the GUI (Main/Launcher/MainWindow/DialogBox).
     // Declared directly (rather than via the org.openjfx Gradle plugin)
-    // with all three desktop platform classifiers, per the JavaFX setup
-    // guide linked from the course's project page
+    // with classifiers for every desktop platform/architecture combo, per
+    // the JavaFX setup guide linked from the course's project page
     // (se-education.org/guides/tutorials/javaFxPart1.html) - this way the
-    // build works unmodified regardless of which OS it's built on.
+    // build works unmodified regardless of which machine it's built on.
+    //
+    // "mac" alone only covers Intel Macs; without "mac-aarch64" too, an
+    // Apple Silicon (M1/M2/M3/M4) machine downloads the wrong-architecture
+    // native graphics libraries and JavaFX fails at startup with
+    // "Error initializing QuantumRenderer: no suitable pipeline found"
+    // instead of showing a window. Having both classifiers on the
+    // classpath is harmless either way - JavaFX's own native-library
+    // loader picks the one matching the machine it's actually running on
+    // and ignores the other. Added linux-aarch64 for the same reason
+    // (e.g. a Raspberry Pi or an ARM cloud VM), even though it's not
+    // needed for this course.
     String javaFxVersion = '17.0.7'
 
     implementation "org.openjfx:javafx-base:${javaFxVersion}:win"
     implementation "org.openjfx:javafx-base:${javaFxVersion}:mac"
+    implementation "org.openjfx:javafx-base:${javaFxVersion}:mac-aarch64"
     implementation "org.openjfx:javafx-base:${javaFxVersion}:linux"
+    implementation "org.openjfx:javafx-base:${javaFxVersion}:linux-aarch64"
     implementation "org.openjfx:javafx-controls:${javaFxVersion}:win"
     implementation "org.openjfx:javafx-controls:${javaFxVersion}:mac"
+    implementation "org.openjfx:javafx-controls:${javaFxVersion}:mac-aarch64"
     implementation "org.openjfx:javafx-controls:${javaFxVersion}:linux"
+    implementation "org.openjfx:javafx-controls:${javaFxVersion}:linux-aarch64"
     implementation "org.openjfx:javafx-fxml:${javaFxVersion}:win"
     implementation "org.openjfx:javafx-fxml:${javaFxVersion}:mac"
+    implementation "org.openjfx:javafx-fxml:${javaFxVersion}:mac-aarch64"
     implementation "org.openjfx:javafx-fxml:${javaFxVersion}:linux"
+    implementation "org.openjfx:javafx-fxml:${javaFxVersion}:linux-aarch64"
     implementation "org.openjfx:javafx-graphics:${javaFxVersion}:win"
     implementation "org.openjfx:javafx-graphics:${javaFxVersion}:mac"
+    implementation "org.openjfx:javafx-graphics:${javaFxVersion}:mac-aarch64"
     implementation "org.openjfx:javafx-graphics:${javaFxVersion}:linux"
+    implementation "org.openjfx:javafx-graphics:${javaFxVersion}:linux-aarch64"
 }
 
 test {
