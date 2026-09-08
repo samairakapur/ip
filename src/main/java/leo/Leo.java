@@ -327,6 +327,14 @@ public class Leo {
                 );
             }
 
+            // A-Assertions: documents this method's own postcondition
+            // (stated in its Javadoc @return) for whoever calls it next
+            // - by this point the only way out is the checked-above
+            // exception or this return, so taskNumber > 0 always holds
+            // here; this isn't re-validating anything, just naming the
+            // guarantee explicitly.
+            assert taskNumber > 0 : "a returned task number should always be positive";
+
             return taskNumber;
 
         } catch (NumberFormatException e) {

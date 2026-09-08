@@ -36,6 +36,18 @@ public class Storage {
                 continue;
             }
 
+            // A-Assertions: this method's own contract (see the Javadoc
+            // above) says the caller supplies "tasks" already sized to
+            // hold every task that could be loaded. Leo's constructor is
+            // the only caller, and it currently allocates a fixed
+            // capacity of 100 - so a save file with more non-blank
+            // lines than that would silently violate the contract this
+            // method relies on. This documents that assumption instead
+            // of leaving it as a bare ArrayIndexOutOfBoundsException a
+            // few lines below with no explanation of what went wrong.
+            assert itemCount < tasks.length
+                    : "tasks array should have enough capacity for every line in the save file";
+
             Task task = parseTask(line);
             tasks[itemCount] = task;
             itemCount++;
