@@ -3,6 +3,8 @@ package leo;
 import java.io.IOException;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Core of the Leo chatbot: loads any previously-saved tasks, then can
@@ -92,13 +94,19 @@ public class Leo {
                 outputUi.showGoodbye();
 
             } else if (commandWord.equals("list")) {
+                // A-Streams: builds every numbered line first, then
+                // shows them all in one call, instead of an indexed for
+                // loop calling showMessage once per line. IntStream.range
+                // keeps each task paired with its 1-based display number
+                // without a separate counter variable to maintain by hand.
+                List<String> lines = IntStream.range(0, tasks.size())
+                        .mapToObj(i -> (i + 1) + ". " + tasks.get(i))
+                        .collect(Collectors.toList());
+
                 outputUi.showMessage(
                         "Here are the things I've saved in your to-do list so far:"
                 );
-
-                for (int i = 0; i < tasks.size(); i++) {
-                    outputUi.showMessage((i + 1) + ". " + tasks.get(i));
-                }
+                outputUi.showMessage(lines.toArray(new String[0]));
 
             } else if (commandWord.equals("mark")) {
                 if (arguments.isEmpty()) {
@@ -280,11 +288,15 @@ public class Leo {
                             "I couldn't find any matching tasks in your list."
                     );
                 } else {
-                    outputUi.showMessage("Here are the matching tasks in your list:");
+                    // A-Streams: same approach as the "list" command
+                    // above - number each match via IntStream.range,
+                    // then show every line in one call.
+                    List<String> matchLines = IntStream.range(0, matches.size())
+                            .mapToObj(i -> (i + 1) + ". " + matches.get(i))
+                            .collect(Collectors.toList());
 
-                    for (int i = 0; i < matches.size(); i++) {
-                        outputUi.showMessage((i + 1) + ". " + matches.get(i));
-                    }
+                    outputUi.showMessage("Here are the matching tasks in your list:");
+                    outputUi.showMessage(matchLines.toArray(new String[0]));
                 }
             } else {
                 throw new LeoException(
