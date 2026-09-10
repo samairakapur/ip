@@ -2,6 +2,7 @@ package leo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents the in-memory list of tasks that Leo is tracking. Wraps the
@@ -119,14 +120,14 @@ public class TaskList {
      * @return a new list of the matching tasks (empty if none match)
      */
     public List<Task> find(String keyword) {
-        List<Task> matches = new ArrayList<>();
-
-        for (Task task : tasks) {
-            if (task.getDescription().contains(keyword)) {
-                matches.add(task);
-            }
-        }
-
-        return matches;
+        // A-Streams: filtering-then-collecting into a new list is
+        // exactly what Stream's filter/collect was designed for, and
+        // reads as "the tasks whose description contains keyword" in
+        // one expression, matching this method's own Javadoc almost
+        // word for word - a closer fit here than the manual loop it
+        // replaces.
+        return tasks.stream()
+                .filter(task -> task.getDescription().contains(keyword))
+                .collect(Collectors.toList());
     }
 }
