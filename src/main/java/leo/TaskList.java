@@ -21,6 +21,17 @@ public class TaskList {
      * @param count number of valid entries at the start of initialTasks
      */
     public TaskList(Task[] initialTasks, int count) {
+        // A-Assertions: count is meant to say how many of the leading
+        // entries in initialTasks are valid (Storage.loadTasks documents
+        // the same contract for its own "tasks" parameter). A negative
+        // count or one bigger than the array can only happen if a
+        // caller passes mismatched arguments - not something a user
+        // could trigger through normal use - so this is an internal
+        // assumption worth documenting rather than a case to recover
+        // from at runtime.
+        assert count >= 0 && count <= initialTasks.length
+                : "count should be a valid number of leading entries in initialTasks";
+
         this.tasks = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             this.tasks.add(initialTasks[i]);
@@ -43,6 +54,16 @@ public class TaskList {
      * @return the task at that index
      */
     public Task get(int index) {
+        // A-Assertions: every call site in Leo checks isValidIndex(index)
+        // before calling get() (see Leo.processCommand), so reaching
+        // here with an invalid index would mean a bug in that calling
+        // code, not something a user's input could cause directly. This
+        // documents that assumption instead of leaving it implicit in
+        // however ArrayList happens to fail (an unchecked
+        // IndexOutOfBoundsException either way, but this names the
+        // actual assumption being violated).
+        assert isValidIndex(index) : "index should already have been validated by the caller";
+
         return tasks.get(index);
     }
 
@@ -53,6 +74,10 @@ public class TaskList {
      * @return the task that was removed
      */
     public Task remove(int index) {
+        // A-Assertions: same reasoning as get() above - callers are
+        // expected to have validated index first.
+        assert isValidIndex(index) : "index should already have been validated by the caller";
+
         return tasks.remove(index);
     }
 

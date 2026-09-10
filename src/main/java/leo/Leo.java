@@ -82,6 +82,17 @@ public class Leo {
      * all of Leo's command-handling logic lives, shared by both
      * {@link #run()} (console) and {@link #getResponse(String)} (GUI).
      *
+     * <p>A-CodeQuality: this method used to contain the full body of
+     * every command (roughly 220 lines, one big if-else chain) - well
+     * past the "avoid long methods (over 30 lines)" guideline from the
+     * course's Code Quality chapter, and hard to read as a result: to
+     * find out what "mark" does, you had to skim past unrelated code
+     * for every other command first. Each command's own logic has been
+     * pulled out into its own private handleXxx method below, so this
+     * method's job is now just "dispatch to the right handler" - what
+     * it does is visible at a glance, and each handler can be read (or
+     * changed) on its own, independent of the others.
+     *
      * @param input raw command text, exactly as the user typed it
      * @param outputUi where Leo's reply to this command should go
      */
@@ -92,212 +103,22 @@ public class Leo {
         try {
             if (commandWord.equals("bye")) {
                 outputUi.showGoodbye();
-
             } else if (commandWord.equals("list")) {
-                // A-Streams: builds every numbered line first, then
-                // shows them all in one call, instead of an indexed for
-                // loop calling showMessage once per line. IntStream.range
-                // keeps each task paired with its 1-based display number
-                // without a separate counter variable to maintain by hand.
-                List<String> lines = IntStream.range(0, tasks.size())
-                        .mapToObj(i -> (i + 1) + ". " + tasks.get(i))
-                        .collect(Collectors.toList());
-
-                outputUi.showMessage(
-                        "Here are the things I've saved in your to-do list so far:"
-                );
-                outputUi.showMessage(lines.toArray(new String[0]));
-
+                handleList(outputUi);
             } else if (commandWord.equals("mark")) {
-                if (arguments.isEmpty()) {
-                    throw new LeoException(
-                            "Please specify which task to mark, for example: mark 2"
-                    );
-                }
-
-                int taskIndex = parseTaskNumber(arguments, "mark") - 1;
-
-                if (!tasks.isValidIndex(taskIndex)) {
-                    throw new LeoException(
-                            "That task number does not exist."
-                    );
-                }
-
-                tasks.get(taskIndex).markAsDone();
-                Storage.saveTasks(tasks.toArray(), tasks.size());
-
-                outputUi.showMessage(
-                        "Nice! I've marked this task as done:",
-                        tasks.get(taskIndex).toString()
-                );
-
+                handleMark(arguments, outputUi);
             } else if (commandWord.equals("unmark")) {
-                if (arguments.isEmpty()) {
-                    throw new LeoException(
-                            "Please specify which task to unmark, for example: unmark 2"
-                    );
-                }
-
-                int taskIndex = parseTaskNumber(arguments, "unmark") - 1;
-
-                if (!tasks.isValidIndex(taskIndex)) {
-                    throw new LeoException(
-                            "That task number does not exist."
-                    );
-                }
-
-                tasks.get(taskIndex).markAsNotDone();
-                Storage.saveTasks(tasks.toArray(), tasks.size());
-
-                outputUi.showMessage(
-                        "OK, I've marked this task as not done yet:",
-                        tasks.get(taskIndex).toString()
-                );
-
+                handleUnmark(arguments, outputUi);
             } else if (commandWord.equals("todo")) {
-                if (arguments.isEmpty()) {
-                    throw new LeoException(
-                            "The description of a todo cannot be empty."
-                    );
-                }
-
-                tasks.add(new Todo(arguments));
-                Storage.saveTasks(tasks.toArray(), tasks.size());
-
-                outputUi.showMessage(
-                        "Got it. I've added this task:",
-                        "  " + tasks.get(tasks.size() - 1),
-                        "Now you have " + tasks.size() + " tasks in the list."
-                );
-
+                handleTodo(arguments, outputUi);
             } else if (commandWord.equals("deadline")) {
-                if (arguments.isEmpty() || !arguments.contains(" /by ")) {
-                    throw new LeoException(
-                            "Please enter a deadline in this format: deadline DESCRIPTION /by TIME"
-                    );
-                }
-
-                String[] parts = arguments.split(" /by ", 2);
-                String description = parts[0].trim();
-                String by = parts[1].trim();
-
-                if (description.isEmpty()) {
-                    throw new LeoException(
-                            "The description of a deadline cannot be empty."
-                    );
-                }
-
-                if (by.isEmpty()) {
-                    throw new LeoException(
-                            "Please specify when the task is due after '/by'."
-                    );
-                }
-
-                tasks.add(new Deadline(description, by));
-                Storage.saveTasks(tasks.toArray(), tasks.size());
-
-                outputUi.showMessage(
-                        "Got it. I've added this task:",
-                        "  " + tasks.get(tasks.size() - 1),
-                        "Now you have " + tasks.size() + " tasks in the list."
-                );
-
+                handleDeadline(arguments, outputUi);
             } else if (commandWord.equals("event")) {
-                if (arguments.isEmpty() || !arguments.contains(" /from ")) {
-                    throw new LeoException(
-                            "Please enter an event in this format: event DESCRIPTION /from START /to END"
-                    );
-                }
-
-                String[] fromParts = arguments.split(" /from ", 2);
-                String description = fromParts[0].trim();
-                String eventTimes = fromParts[1].trim();
-
-                if (!eventTimes.contains(" /to ")) {
-                    throw new LeoException(
-                            "Please enter an event in this format: event DESCRIPTION /from START /to END"
-                    );
-                }
-
-                String[] timeParts = eventTimes.split(" /to ", 2);
-                String from = timeParts[0].trim();
-                String to = timeParts[1].trim();
-
-                if (description.isEmpty()) {
-                    throw new LeoException(
-                            "The description of an event cannot be empty."
-                    );
-                }
-
-                if (from.isEmpty()) {
-                    throw new LeoException(
-                            "Please specify the event's starting time after '/from'."
-                    );
-                }
-
-                if (to.isEmpty()) {
-                    throw new LeoException(
-                            "Please specify the event's ending time after '/to'."
-                    );
-                }
-
-                tasks.add(new Event(description, from, to));
-                Storage.saveTasks(tasks.toArray(), tasks.size());
-
-                outputUi.showMessage(
-                        "Got it. I've added this task:",
-                        "  " + tasks.get(tasks.size() - 1),
-                        "Now you have " + tasks.size() + " tasks in the list."
-                );
-
+                handleEvent(arguments, outputUi);
             } else if (commandWord.equals("delete")) {
-                if (arguments.isEmpty()) {
-                    throw new LeoException(
-                            "Please specify which task to delete, for example: delete 2"
-                    );
-                }
-
-                int taskIndex = parseTaskNumber(arguments, "delete") - 1;
-
-                if (!tasks.isValidIndex(taskIndex)) {
-                    throw new LeoException(
-                            "That task number does not exist."
-                    );
-                }
-
-                Task deletedTask = tasks.remove(taskIndex);
-                Storage.saveTasks(tasks.toArray(), tasks.size());
-
-                outputUi.showMessage(
-                        "Okay, noted. I've removed this task:",
-                        "  " + deletedTask,
-                        "Now you have " + tasks.size() + " tasks in the list."
-                );
-
+                handleDelete(arguments, outputUi);
             } else if (commandWord.equals("find")) {
-                if (arguments.isEmpty()) {
-                    throw new LeoException(
-                            "Please specify a keyword to search for, for example: find book"
-                    );
-                }
-
-                List<Task> matches = tasks.find(arguments);
-
-                if (matches.isEmpty()) {
-                    outputUi.showMessage(
-                            "I couldn't find any matching tasks in your list."
-                    );
-                } else {
-                    // A-Streams: same approach as the "list" command
-                    // above - number each match via IntStream.range,
-                    // then show every line in one call.
-                    List<String> matchLines = IntStream.range(0, matches.size())
-                            .mapToObj(i -> (i + 1) + ". " + matches.get(i))
-                            .collect(Collectors.toList());
-
-                    outputUi.showMessage("Here are the matching tasks in your list:");
-                    outputUi.showMessage(matchLines.toArray(new String[0]));
-                }
+                handleFind(arguments, outputUi);
             } else {
                 throw new LeoException(
                         "Sorry, I don't understand what you are trying to say."
@@ -314,6 +135,295 @@ public class Leo {
             outputUi.showMessage(
                     "Please enter dates and times in the format yyyy-MM-dd HHmm."
             );
+        }
+    }
+
+    /**
+     * Handles the "list" command: shows every task currently stored.
+     *
+     * @param outputUi where the task list should be shown
+     */
+    private void handleList(Ui outputUi) {
+        // A-Streams: builds every numbered line first, then shows
+        // them all in one call, instead of an indexed for loop
+        // calling showMessage once per line. IntStream.range keeps
+        // each task paired with its 1-based display number without
+        // a separate counter variable to maintain by hand.
+        List<String> lines = IntStream.range(0, tasks.size())
+                .mapToObj(i -> (i + 1) + ". " + tasks.get(i))
+                .collect(Collectors.toList());
+
+        outputUi.showMessage(
+                "Here are the things I've saved in your to-do list so far:"
+        );
+        outputUi.showMessage(lines.toArray(new String[0]));
+    }
+
+    /**
+     * Handles the "mark" command: marks the specified task as done.
+     *
+     * @param arguments text after the command word, e.g. "2" in "mark 2"
+     * @param outputUi where the confirmation (or error) should be shown
+     * @throws LeoException if the task number is missing or invalid
+     * @throws IOException if the task list cannot be saved
+     */
+    private void handleMark(String arguments, Ui outputUi)
+            throws LeoException, IOException {
+        if (arguments.isEmpty()) {
+            throw new LeoException(
+                    "Please specify which task to mark, for example: mark 2"
+            );
+        }
+
+        int taskIndex = parseTaskNumber(arguments, "mark") - 1;
+
+        if (!tasks.isValidIndex(taskIndex)) {
+            throw new LeoException(
+                    "That task number does not exist."
+            );
+        }
+
+        tasks.get(taskIndex).markAsDone();
+        Storage.saveTasks(tasks.toArray(), tasks.size());
+
+        outputUi.showMessage(
+                "Nice! I've marked this task as done:",
+                tasks.get(taskIndex).toString()
+        );
+    }
+
+    /**
+     * Handles the "unmark" command: marks the specified task as not
+     * done.
+     *
+     * @param arguments text after the command word, e.g. "2" in
+     *     "unmark 2"
+     * @param outputUi where the confirmation (or error) should be shown
+     * @throws LeoException if the task number is missing or invalid
+     * @throws IOException if the task list cannot be saved
+     */
+    private void handleUnmark(String arguments, Ui outputUi)
+            throws LeoException, IOException {
+        if (arguments.isEmpty()) {
+            throw new LeoException(
+                    "Please specify which task to unmark, for example: unmark 2"
+            );
+        }
+
+        int taskIndex = parseTaskNumber(arguments, "unmark") - 1;
+
+        if (!tasks.isValidIndex(taskIndex)) {
+            throw new LeoException(
+                    "That task number does not exist."
+            );
+        }
+
+        tasks.get(taskIndex).markAsNotDone();
+        Storage.saveTasks(tasks.toArray(), tasks.size());
+
+        outputUi.showMessage(
+                "OK, I've marked this task as not done yet:",
+                tasks.get(taskIndex).toString()
+        );
+    }
+
+    /**
+     * Handles the "todo" command: adds a new todo task.
+     *
+     * @param arguments text after the command word, i.e. the todo's
+     *     description
+     * @param outputUi where the confirmation (or error) should be shown
+     * @throws LeoException if the description is empty
+     * @throws IOException if the task list cannot be saved
+     */
+    private void handleTodo(String arguments, Ui outputUi)
+            throws LeoException, IOException {
+        if (arguments.isEmpty()) {
+            throw new LeoException(
+                    "The description of a todo cannot be empty."
+            );
+        }
+
+        tasks.add(new Todo(arguments));
+        Storage.saveTasks(tasks.toArray(), tasks.size());
+
+        outputUi.showMessage(
+                "Got it. I've added this task:",
+                "  " + tasks.get(tasks.size() - 1),
+                "Now you have " + tasks.size() + " tasks in the list."
+        );
+    }
+
+    /**
+     * Handles the "deadline" command: adds a new deadline task.
+     *
+     * @param arguments text after the command word, in the form
+     *     "DESCRIPTION /by TIME"
+     * @param outputUi where the confirmation (or error) should be shown
+     * @throws LeoException if the command is malformed
+     * @throws IOException if the task list cannot be saved
+     */
+    private void handleDeadline(String arguments, Ui outputUi)
+            throws LeoException, IOException {
+        if (arguments.isEmpty() || !arguments.contains(" /by ")) {
+            throw new LeoException(
+                    "Please enter a deadline in this format: deadline DESCRIPTION /by TIME"
+            );
+        }
+
+        String[] parts = arguments.split(" /by ", 2);
+        String description = parts[0].trim();
+        String by = parts[1].trim();
+
+        if (description.isEmpty()) {
+            throw new LeoException(
+                    "The description of a deadline cannot be empty."
+            );
+        }
+
+        if (by.isEmpty()) {
+            throw new LeoException(
+                    "Please specify when the task is due after '/by'."
+            );
+        }
+
+        tasks.add(new Deadline(description, by));
+        Storage.saveTasks(tasks.toArray(), tasks.size());
+
+        outputUi.showMessage(
+                "Got it. I've added this task:",
+                "  " + tasks.get(tasks.size() - 1),
+                "Now you have " + tasks.size() + " tasks in the list."
+        );
+    }
+
+    /**
+     * Handles the "event" command: adds a new event task.
+     *
+     * @param arguments text after the command word, in the form
+     *     "DESCRIPTION /from START /to END"
+     * @param outputUi where the confirmation (or error) should be shown
+     * @throws LeoException if the command is malformed
+     * @throws IOException if the task list cannot be saved
+     */
+    private void handleEvent(String arguments, Ui outputUi)
+            throws LeoException, IOException {
+        if (arguments.isEmpty() || !arguments.contains(" /from ")) {
+            throw new LeoException(
+                    "Please enter an event in this format: event DESCRIPTION /from START /to END"
+            );
+        }
+
+        String[] fromParts = arguments.split(" /from ", 2);
+        String description = fromParts[0].trim();
+        String eventTimes = fromParts[1].trim();
+
+        if (!eventTimes.contains(" /to ")) {
+            throw new LeoException(
+                    "Please enter an event in this format: event DESCRIPTION /from START /to END"
+            );
+        }
+
+        String[] timeParts = eventTimes.split(" /to ", 2);
+        String from = timeParts[0].trim();
+        String to = timeParts[1].trim();
+
+        if (description.isEmpty()) {
+            throw new LeoException(
+                    "The description of an event cannot be empty."
+            );
+        }
+
+        if (from.isEmpty()) {
+            throw new LeoException(
+                    "Please specify the event's starting time after '/from'."
+            );
+        }
+
+        if (to.isEmpty()) {
+            throw new LeoException(
+                    "Please specify the event's ending time after '/to'."
+            );
+        }
+
+        tasks.add(new Event(description, from, to));
+        Storage.saveTasks(tasks.toArray(), tasks.size());
+
+        outputUi.showMessage(
+                "Got it. I've added this task:",
+                "  " + tasks.get(tasks.size() - 1),
+                "Now you have " + tasks.size() + " tasks in the list."
+        );
+    }
+
+    /**
+     * Handles the "delete" command: removes the specified task.
+     *
+     * @param arguments text after the command word, e.g. "2" in
+     *     "delete 2"
+     * @param outputUi where the confirmation (or error) should be shown
+     * @throws LeoException if the task number is missing or invalid
+     * @throws IOException if the task list cannot be saved
+     */
+    private void handleDelete(String arguments, Ui outputUi)
+            throws LeoException, IOException {
+        if (arguments.isEmpty()) {
+            throw new LeoException(
+                    "Please specify which task to delete, for example: delete 2"
+            );
+        }
+
+        int taskIndex = parseTaskNumber(arguments, "delete") - 1;
+
+        if (!tasks.isValidIndex(taskIndex)) {
+            throw new LeoException(
+                    "That task number does not exist."
+            );
+        }
+
+        Task deletedTask = tasks.remove(taskIndex);
+        Storage.saveTasks(tasks.toArray(), tasks.size());
+
+        outputUi.showMessage(
+                "Okay, noted. I've removed this task:",
+                "  " + deletedTask,
+                "Now you have " + tasks.size() + " tasks in the list."
+        );
+    }
+
+    /**
+     * Handles the "find" command: shows tasks whose description
+     * contains the given keyword.
+     *
+     * @param arguments text after the command word, i.e. the keyword
+     * @param outputUi where the matching tasks (or error) should be
+     *     shown
+     * @throws LeoException if the keyword is empty
+     */
+    private void handleFind(String arguments, Ui outputUi)
+            throws LeoException {
+        if (arguments.isEmpty()) {
+            throw new LeoException(
+                    "Please specify a keyword to search for, for example: find book"
+            );
+        }
+
+        List<Task> matches = tasks.find(arguments);
+
+        if (matches.isEmpty()) {
+            outputUi.showMessage(
+                    "I couldn't find any matching tasks in your list."
+            );
+        } else {
+            // A-Streams: same approach as handleList above - number
+            // each match via IntStream.range, then show every line
+            // in one call.
+            List<String> matchLines = IntStream.range(0, matches.size())
+                    .mapToObj(i -> (i + 1) + ". " + matches.get(i))
+                    .collect(Collectors.toList());
+
+            outputUi.showMessage("Here are the matching tasks in your list:");
+            outputUi.showMessage(matchLines.toArray(new String[0]));
         }
     }
 
@@ -338,6 +448,14 @@ public class Leo {
                         "The task number must be greater than zero."
                 );
             }
+
+            // A-Assertions: documents this method's own postcondition
+            // (stated in its Javadoc @return) for whoever calls it next
+            // - by this point the only way out is the checked-above
+            // exception or this return, so taskNumber > 0 always holds
+            // here; this isn't re-validating anything, just naming the
+            // guarantee explicitly.
+            assert taskNumber > 0 : "a returned task number should always be positive";
 
             return taskNumber;
 
