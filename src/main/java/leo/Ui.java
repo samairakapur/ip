@@ -43,6 +43,7 @@ public class Ui {
                 LINE,
                 "Hello! I'm Leo.",
                 "How are you doing today, and how may I help?",
+                "Type 'help' any time to see the full list of things I can do.",
                 LINE
         );
     }

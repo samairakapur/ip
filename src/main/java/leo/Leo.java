@@ -105,6 +105,8 @@ public class Leo {
                 outputUi.showGoodbye();
             } else if (commandWord.equals("list")) {
                 handleList(outputUi);
+            } else if (commandWord.equals("help")) {
+                handleHelp(outputUi);
             } else if (commandWord.equals("mark")) {
                 handleMark(arguments, outputUi);
             } else if (commandWord.equals("unmark")) {
@@ -157,6 +159,31 @@ public class Leo {
                 "Here are the things I've saved in your to-do list so far:"
         );
         outputUi.showMessage(lines.toArray(new String[0]));
+    }
+
+    /**
+     * Handles the "help" command: shows a quick reference of every
+     * command Leo understands and how to use it. This is C-Help's
+     * minimal "help page" - one command that lists the others, so a
+     * new user isn't left guessing at Leo's syntax.
+     *
+     * @param outputUi where the help text should be shown
+     */
+    private void handleHelp(Ui outputUi) {
+        outputUi.showMessage(
+                "Here's everything I can do:",
+                "  list - show every task",
+                "  todo DESCRIPTION - add a todo",
+                "  deadline DESCRIPTION /by TIME - add a deadline"
+                        + " (e.g. deadline return book /by 2019-12-02 1800)",
+                "  event DESCRIPTION /from START /to END - add an event",
+                "  mark INDEX - mark a task as done",
+                "  unmark INDEX - mark a task as not done",
+                "  delete INDEX - remove a task",
+                "  find KEYWORD - search tasks by keyword",
+                "  help - show this list again",
+                "  bye - exit Leo"
+        );
     }
 
     /**
