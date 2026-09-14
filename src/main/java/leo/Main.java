@@ -24,9 +24,18 @@ public class Main extends Application {
                     new FXMLLoader(Main.class.getResource("/view/MainWindow.fxml"));
             AnchorPane root = fxmlLoader.load();
             Scene scene = new Scene(root);
+            // A-BetterGui: theme.css replaces the plain default JavaFX
+            // look with a warmer background and colour-coded, rounded
+            // chat bubbles - see that file for the full rationale.
+            scene.getStylesheets().add(
+                    Main.class.getResource("/view/theme.css").toExternalForm()
+            );
 
             stage.setTitle("Leo");
-            stage.setMinHeight(220);
+            // A-BetterGui: raised from 220 to make room for the new
+            // quick-action button row in MainWindow.fxml, so the window
+            // can never be resized small enough to clip it.
+            stage.setMinHeight(260);
             stage.setMinWidth(417);
             stage.setScene(scene);
 

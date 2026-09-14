@@ -41,8 +41,8 @@ public class Ui {
         showMessage(
                 banner,
                 LINE,
-                "Hello! I'm Leo.",
-                "How are you doing today, and how may I help?",
+                "Hello! I'm Leo. 🦁",
+                "Think of me as your friendly task sidekick - how may I help today?",
                 LINE
         );
     }
@@ -84,9 +84,14 @@ public class Ui {
      * Displays Leo's goodbye message.
      */
     public void showGoodbye() {
+        // A-BetterGui: the exact "Hope to see you again soon..." line
+        // stays unchanged (it's part of the app's existing behaviour,
+        // not something worth risking on a rewrite) - the extra line
+        // just adds a bit of warmth on top.
         showMessage(
                 LINE,
                 "Hope to see you again soon! Have a great day ahead.",
+                "✨ Catch you on the next task!",
                 LINE
         );
     }
