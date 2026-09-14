@@ -31,4 +31,22 @@ public class Parser {
         int spaceIndex = trimmed.indexOf(' ');
         return spaceIndex == -1 ? "" : trimmed.substring(spaceIndex + 1).trim();
     }
+
+    /**
+     * Checks whether a delimiter (e.g. " /by ") appears more than once
+     * in the input. A repeated delimiter usually means the user
+     * mistyped a command (e.g. "deadline return book /by mon /by
+     * tue") - since commands split on only the first occurrence (see
+     * {@link leo.Leo}'s handleDeadline/handleEvent), a second one would
+     * otherwise silently end up folded into the previous field instead
+     * of being rejected with a clear error.
+     *
+     * @param input text to search
+     * @param delimiter delimiter text to check for repeats of
+     * @return true if delimiter occurs 2 or more times in input
+     */
+    public static boolean hasDuplicateDelimiter(String input, String delimiter) {
+        int firstIndex = input.indexOf(delimiter);
+        return firstIndex != -1 && input.indexOf(delimiter, firstIndex + 1) != -1;
+    }
 }
