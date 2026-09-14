@@ -2,6 +2,7 @@ package leo;
 
 import java.io.IOException;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -27,19 +28,19 @@ public class Leo {
     public Leo() {
         this.ui = new Ui();
 
-        Task[] loadedTasks = new Task[100];
-        int loadedCount;
+        List<Task> loadedTasks;
 
         try {
-            loadedCount = Storage.loadTasks(loadedTasks);
+            loadedTasks = Storage.loadTasks();
         } catch (IOException e) {
             ui.showMessage(
                     "I couldn't load your saved tasks: " + e.getMessage()
             );
-            loadedCount = 0;
+            loadedTasks = new ArrayList<>();
         }
 
-        this.tasks = new TaskList(loadedTasks, loadedCount);
+        this.tasks = new TaskList(
+                loadedTasks.toArray(new Task[0]), loadedTasks.size());
     }
 
     /**
@@ -258,14 +259,12 @@ public class Leo {
             );
         }
 
-        tasks.add(new Todo(arguments));
+        Todo todo = new Todo(arguments);
+        boolean isDuplicate = tasks.containsSimilar(todo);
+        tasks.add(todo);
         Storage.saveTasks(tasks.toArray(), tasks.size());
 
-        outputUi.showMessage(
-                "Got it. I've added this task:",
-                "  " + tasks.get(tasks.size() - 1),
-                "Now you have " + tasks.size() + " tasks in the list."
-        );
+        showTaskAddedConfirmation(outputUi, isDuplicate);
     }
 
     /**
@@ -285,6 +284,12 @@ public class Leo {
             );
         }
 
+        if (Parser.hasDuplicateDelimiter(arguments, " /by ")) {
+            throw new LeoException(
+                    "Please use '/by' only once when entering a deadline."
+            );
+        }
+
         String[] parts = arguments.split(" /by ", 2);
         String description = parts[0].trim();
         String by = parts[1].trim();
@@ -301,14 +306,12 @@ public class Leo {
             );
         }
 
-        tasks.add(new Deadline(description, by));
+        Deadline deadline = new Deadline(description, by);
+        boolean isDuplicate = tasks.containsSimilar(deadline);
+        tasks.add(deadline);
         Storage.saveTasks(tasks.toArray(), tasks.size());
 
-        outputUi.showMessage(
-                "Got it. I've added this task:",
-                "  " + tasks.get(tasks.size() - 1),
-                "Now you have " + tasks.size() + " tasks in the list."
-        );
+        showTaskAddedConfirmation(outputUi, isDuplicate);
     }
 
     /**
@@ -328,6 +331,12 @@ public class Leo {
             );
         }
 
+        if (Parser.hasDuplicateDelimiter(arguments, " /from ")) {
+            throw new LeoException(
+                    "Please use '/from' only once when entering an event."
+            );
+        }
+
         String[] fromParts = arguments.split(" /from ", 2);
         String description = fromParts[0].trim();
         String eventTimes = fromParts[1].trim();
@@ -335,6 +344,12 @@ public class Leo {
         if (!eventTimes.contains(" /to ")) {
             throw new LeoException(
                     "Please enter an event in this format: event DESCRIPTION /from START /to END"
+            );
+        }
+
+        if (Parser.hasDuplicateDelimiter(eventTimes, " /to ")) {
+            throw new LeoException(
+                    "Please use '/to' only once when entering an event."
             );
         }
 
@@ -360,14 +375,38 @@ public class Leo {
             );
         }
 
-        tasks.add(new Event(description, from, to));
+        Event event = new Event(description, from, to);
+        boolean isDuplicate = tasks.containsSimilar(event);
+        tasks.add(event);
         Storage.saveTasks(tasks.toArray(), tasks.size());
 
-        outputUi.showMessage(
-                "Got it. I've added this task:",
-                "  " + tasks.get(tasks.size() - 1),
-                "Now you have " + tasks.size() + " tasks in the list."
-        );
+        showTaskAddedConfirmation(outputUi, isDuplicate);
+    }
+
+    /**
+     * Shows the standard "task added" confirmation for the task most
+     * recently added to {@code tasks} - shared by the todo/deadline/
+     * event handlers above so they don't each repeat the same
+     * message-building logic (previously identical 3-line blocks in
+     * all three).
+     *
+     * @param outputUi where the confirmation should be shown
+     * @param isDuplicate whether an equivalent task was already in the
+     *     list before this one was added (see
+     *     {@link TaskList#containsSimilar}) - appends an extra warning
+     *     line when true, without blocking the add
+     */
+    private void showTaskAddedConfirmation(Ui outputUi, boolean isDuplicate) {
+        List<String> lines = new ArrayList<>();
+        lines.add("Got it. I've added this task:");
+        lines.add("  " + tasks.get(tasks.size() - 1));
+        lines.add("Now you have " + tasks.size() + " tasks in the list.");
+
+        if (isDuplicate) {
+            lines.add("Note: this looks like a task you already have - I've added it anyway.");
+        }
+
+        outputUi.showMessage(lines.toArray(new String[0]));
     }
 
     /**

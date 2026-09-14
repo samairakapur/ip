@@ -16,44 +16,47 @@ public class Storage {
             Paths.get("data", "leo.txt");
 
     /**
-     * Loads previously-saved tasks from the save file into the given
-     * array, creating an empty save file first if one does not already
-     * exist.
+     * Loads previously-saved tasks from the save file, creating an
+     * empty save file first if one does not already exist.
      *
-     * @param tasks array to load tasks into, starting at index 0
-     * @return the number of tasks loaded
+     * <p>A-MoreErrorHandling: this used to populate a caller-supplied
+     * fixed-size array (an {@code int loadTasks(Task[] tasks)} that
+     * wrote into "tasks" and returned how many entries it filled in).
+     * Leo's constructor was the only caller, and it allocated that
+     * array as {@code new Task[100]} - so a save file with more than
+     * 100 non-blank lines (easy to reach after weeks of use, since
+     * TaskList itself has never had a capacity limit - see
+     * TaskListTest#canHoldMoreThanOneHundredTasks) would silently
+     * overrun it. There was even an assertion documenting exactly this
+     * risk one commit ago (A-Assertions), but assertions are disabled
+     * by default (no {@code -ea}), so in a normal run it did nothing
+     * and the real failure was an unguarded
+     * {@code ArrayIndexOutOfBoundsException} that crashed Leo on
+     * startup with no explanation. Returning a {@link List} sized to
+     * exactly what was loaded removes the capacity mismatch (and the
+     * assumption it depended on) entirely, rather than just raising the
+     * limit or re-adding a check for it.
+     *
+     * @return the tasks loaded from the save file, in file order
+     *     (empty if the save file has none)
      * @throws IOException if the save file cannot be read, or contains
      *     a line that cannot be parsed as a task
      */
-    public static int loadTasks(Task[] tasks) throws IOException {
+    public static List<Task> loadTasks() throws IOException {
         createDataFileIfMissing();
 
         List<String> lines = Files.readAllLines(FILE_PATH);
-        int itemCount = 0;
+        List<Task> loadedTasks = new ArrayList<>();
 
         for (String line : lines) {
             if (line.trim().isEmpty()) {
                 continue;
             }
 
-            // A-Assertions: this method's own contract (see the Javadoc
-            // above) says the caller supplies "tasks" already sized to
-            // hold every task that could be loaded. Leo's constructor is
-            // the only caller, and it currently allocates a fixed
-            // capacity of 100 - so a save file with more non-blank
-            // lines than that would silently violate the contract this
-            // method relies on. This documents that assumption instead
-            // of leaving it as a bare ArrayIndexOutOfBoundsException a
-            // few lines below with no explanation of what went wrong.
-            assert itemCount < tasks.length
-                    : "tasks array should have enough capacity for every line in the save file";
-
-            Task task = parseTask(line);
-            tasks[itemCount] = task;
-            itemCount++;
+            loadedTasks.add(parseTask(line));
         }
 
-        return itemCount;
+        return loadedTasks;
     }
 
     /**
