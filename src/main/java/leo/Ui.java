@@ -66,6 +66,21 @@ public class Ui {
     }
 
     /**
+     * Displays an error message to the user. By default this is
+     * exactly the same as {@link #showMessage}; {@link GuiUi} overrides
+     * it to additionally remember that an error occurred, so the GUI
+     * can show error replies differently from normal ones (see
+     * {@link Reply}) - the console version has no such distinction to
+     * make, so it just falls back to the plain {@link #showMessage}
+     * behaviour.
+     *
+     * @param message the error message to display
+     */
+    public void showError(String message) {
+        showMessage(message);
+    }
+
+    /**
      * Displays Leo's goodbye message.
      */
     public void showGoodbye() {

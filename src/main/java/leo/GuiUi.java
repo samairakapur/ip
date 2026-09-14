@@ -13,6 +13,7 @@ package leo;
  */
 public class GuiUi extends Ui {
     private final StringBuilder capturedText = new StringBuilder();
+    private boolean isError = false;
 
     @Override
     protected void print(String line) {
@@ -20,6 +21,12 @@ public class GuiUi extends Ui {
             capturedText.append("\n");
         }
         capturedText.append(line);
+    }
+
+    @Override
+    public void showError(String message) {
+        isError = true;
+        super.showError(message);
     }
 
     /**
@@ -31,5 +38,16 @@ public class GuiUi extends Ui {
      */
     public String getCapturedText() {
         return capturedText.toString();
+    }
+
+    /**
+     * Returns whether {@link #showError} was ever called on this Ui -
+     * i.e. whether the command this GuiUi was created for ended up
+     * showing an error message rather than a normal reply.
+     *
+     * @return true if showError was called, false otherwise
+     */
+    public boolean isError() {
+        return isError;
     }
 }

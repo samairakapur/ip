@@ -13,8 +13,9 @@ import javafx.util.Duration;
 /**
  * Controller for {@code MainWindow.fxml}: the scrollable chat log, the
  * text field the user types commands into, and the send button. Wires
- * user input to {@link Leo#getResponse(String)} and displays both sides
- * of the conversation as {@link DialogBox} rows.
+ * user input to {@link Leo#getReply(String)} and displays both sides of
+ * the conversation as {@link DialogBox} rows - Leo's own replies styled
+ * differently when they are error messages (see {@link Reply}).
  */
 public class MainWindow {
     @FXML
@@ -55,7 +56,8 @@ public class MainWindow {
         dialogContainer.getChildren().add(
                 DialogBox.getLeoDialog(
                         "Hello! I'm Leo.\nHow are you doing today, and how may I help?",
-                        leoImage
+                        leoImage,
+                        false
                 )
         );
     }
@@ -76,13 +78,17 @@ public class MainWindow {
             return;
         }
 
-        String response = leo.getResponse(input);
+        Reply reply = leo.getReply(input);
 
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input, userImage),
-                DialogBox.getLeoDialog(response, leoImage)
+                DialogBox.getLeoDialog(reply.getText(), leoImage, reply.isError())
         );
         userInput.clear();
+        // A-BetterGui: keeps the caret in the text field after every
+        // command, so the user can immediately keep typing without
+        // having to click back into it first.
+        userInput.requestFocus();
 
         if (Parser.getCommandWord(input).equals("bye")) {
             PauseTransition delay = new PauseTransition(Duration.seconds(1.5));
