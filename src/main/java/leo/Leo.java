@@ -11,11 +11,12 @@ import java.util.stream.IntStream;
  * Core of the Leo chatbot: loads any previously-saved tasks, then can
  * either run as a console chat loop ({@link #run()}, used by
  * {@link #main(String[])}) or answer one command at a time
- * ({@link #getResponse(String)}, used by the JavaFX GUI - see
- * {@link Launcher} and {@link MainWindow}). Both entry points share the
- * exact same command-handling code in {@link #processCommand}; only
- * where that code's output goes differs (the console, or back to the
- * GUI as a String), via the {@link Ui}/{@link GuiUi} passed in.
+ * ({@link #getReply(String)}/{@link #getResponse(String)}, used by the
+ * JavaFX GUI - see {@link Launcher} and {@link MainWindow}). Both entry
+ * points share the exact same command-handling code in
+ * {@link #processCommand}; only where that code's output goes differs
+ * (the console, or back to the GUI as a {@link Reply}/String), via the
+ * {@link Ui}/{@link GuiUi} passed in.
  */
 public class Leo {
     private final Ui ui;
@@ -72,9 +73,22 @@ public class Leo {
      *     "\n"
      */
     public String getResponse(String input) {
+        return getReply(input).getText();
+    }
+
+    /**
+     * Handles a single command like {@link #getResponse(String)}, but
+     * also reports whether the reply was an error message - used by
+     * the GUI to display error replies differently from normal ones
+     * (see {@link Reply}).
+     *
+     * @param input the raw command text, exactly as the user typed it
+     * @return Leo's reply, together with whether it was an error
+     */
+    public Reply getReply(String input) {
         GuiUi guiUi = new GuiUi();
         processCommand(input, guiUi);
-        return guiUi.getCapturedText();
+        return new Reply(guiUi.getCapturedText(), guiUi.isError());
     }
 
     /**
@@ -127,13 +141,13 @@ public class Leo {
             }
 
         } catch (LeoException e) {
-            outputUi.showMessage(e.getMessage());
+            outputUi.showError(e.getMessage());
         } catch (IOException e) {
-            outputUi.showMessage(
+            outputUi.showError(
                     "I couldn't update the saved task file: " + e.getMessage()
             );
         } catch (DateTimeParseException e) {
-            outputUi.showMessage(
+            outputUi.showError(
                     "Please enter dates and times in the format yyyy-MM-dd HHmm."
             );
         }

@@ -21,12 +21,24 @@ import javafx.scene.shape.Circle;
  * of Leo's replies. Built from {@code DialogBox.fxml}.
  */
 public class DialogBox extends HBox {
+    // A-BetterGui: a light red background/border and dark red text for
+    // error replies (see Reply, Leo#getReply), distinct enough from
+    // the default bubble style that a mistake is obvious without
+    // having to actually read the message - while still keeping the
+    // same shape/padding/font as every other bubble, so it reads as
+    // "the same kind of thing, but flagged" rather than a completely
+    // different element.
+    private static final String ERROR_STYLE =
+            "-fx-background-color: #fdecea; -fx-background-radius: 8; "
+                    + "-fx-border-color: #f5b8b0; -fx-border-radius: 8; "
+                    + "-fx-border-width: 1; -fx-text-fill: #7a1f13; -fx-padding: 4;";
+
     @FXML
     private Label dialog;
     @FXML
     private ImageView displayPicture;
 
-    private DialogBox(String text, Image image) {
+    private DialogBox(String text, Image image, boolean isError) {
         try {
             FXMLLoader fxmlLoader =
                     new FXMLLoader(DialogBox.class.getResource("/view/DialogBox.fxml"));
@@ -39,6 +51,10 @@ public class DialogBox extends HBox {
 
         dialog.setText(text);
         displayPicture.setImage(image);
+
+        if (isError) {
+            dialog.setStyle(ERROR_STYLE);
+        }
 
         // Clip the square avatar image to a circle, matching its
         // rounded position in the layout.
@@ -65,7 +81,7 @@ public class DialogBox extends HBox {
      * @return the dialog box
      */
     public static DialogBox getUserDialog(String text, Image image) {
-        return new DialogBox(text, image);
+        return new DialogBox(text, image, false);
     }
 
     /**
@@ -73,10 +89,14 @@ public class DialogBox extends HBox {
      *
      * @param text Leo's reply
      * @param image Leo's avatar
+     * @param isError whether this reply is an error message - shown
+     *     with a red-tinted style (see {@link #ERROR_STYLE}) instead of
+     *     the default bubble style, so a mistake stands out at a
+     *     glance in the chat log
      * @return the dialog box
      */
-    public static DialogBox getLeoDialog(String text, Image image) {
-        DialogBox dialogBox = new DialogBox(text, image);
+    public static DialogBox getLeoDialog(String text, Image image, boolean isError) {
+        DialogBox dialogBox = new DialogBox(text, image, isError);
         dialogBox.flip();
         return dialogBox;
     }
