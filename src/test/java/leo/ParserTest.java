@@ -1,6 +1,8 @@
 package leo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -46,5 +48,29 @@ public class ParserTest {
                 "return book /by 2019-12-01 1800",
                 Parser.getArguments("deadline return book /by 2019-12-01 1800")
         );
+    }
+
+    // A-MoreErrorHandling
+    @Test
+    public void hasDuplicateDelimiter_delimiterAppearsOnce_returnsFalse() {
+        assertFalse(Parser.hasDuplicateDelimiter(
+                "return book /by 2019-12-01 1800", " /by "));
+    }
+
+    @Test
+    public void hasDuplicateDelimiter_delimiterAppearsTwice_returnsTrue() {
+        assertTrue(Parser.hasDuplicateDelimiter(
+                "return book /by mon /by tue", " /by "));
+    }
+
+    @Test
+    public void hasDuplicateDelimiter_delimiterAbsent_returnsFalse() {
+        assertFalse(Parser.hasDuplicateDelimiter("return book", " /by "));
+    }
+
+    @Test
+    public void hasDuplicateDelimiter_delimiterAppearsThreeTimes_returnsTrue() {
+        assertTrue(Parser.hasDuplicateDelimiter(
+                "a /by b /by c /by d", " /by "));
     }
 }
