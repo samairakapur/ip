@@ -96,4 +96,29 @@ public class Task {
         return "[" + getType() + "][" + getStatus()
                 + "] " + description;
     }
+
+    /**
+     * Checks whether this task represents the same task as another -
+     * same type, description, and any type-specific fields a subclass
+     * adds (e.g. a Deadline's due date) - regardless of done status.
+     * Used to warn the user when they add what looks like a duplicate
+     * entry.
+     *
+     * <p>Compares via {@link #toFileString()} rather than field-by-field,
+     * so a subclass that appends its own fields to that string (every
+     * subclass already does, to round-trip through the save file) is
+     * compared correctly without needing to override this method
+     * itself. The type code and done flag are always exactly one
+     * character each (see {@link #toFileString()}), so
+     * {@code "X | Y | "} is always 8 characters - skipping it compares
+     * everything after the done flag, i.e. every field that actually
+     * distinguishes one task from another.
+     *
+     * @param other task to compare against
+     * @return true if other represents the same task as this one
+     */
+    public boolean isSameTaskAs(Task other) {
+        return other != null
+                && toFileString().substring(8).equals(other.toFileString().substring(8));
+    }
 }

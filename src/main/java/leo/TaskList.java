@@ -130,4 +130,18 @@ public class TaskList {
                 .filter(task -> task.getDescription().contains(keyword))
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Checks whether the list already contains a task equivalent to the
+     * given one (same type, description, and any type-specific fields),
+     * regardless of done status. Used to warn about likely duplicate
+     * entries without blocking them outright, since a repeated task is
+     * occasionally intentional (e.g. a recurring reminder).
+     *
+     * @param task task to check for
+     * @return true if an equivalent task is already present
+     */
+    public boolean containsSimilar(Task task) {
+        return tasks.stream().anyMatch(existing -> existing.isSameTaskAs(task));
+    }
 }
