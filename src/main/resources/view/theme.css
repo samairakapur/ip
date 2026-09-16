@@ -14,7 +14,7 @@
  */
 
 .root-pane {
-    -fx-background-color: #f6f3ee;
+    -fx-background-color: linear-gradient(to bottom right, #fdf3f5, #f1eefb, #eaf6f0);
 }
 
 .chat-scroll-pane, .chat-scroll-pane .viewport {
