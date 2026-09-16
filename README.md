@@ -6,7 +6,7 @@ This project was built from a greenfield Java project template (originally named
 
 ## Setting up in Intellij
 
-Prerequisites: JDK 25, update Intellij to the most recent version.
+Prerequisites: JDK 25, update Intellij to the most recent version. (Note: this is only for development - end users running the packaged jar just need Java 17+, per the User Guide.)
 
 1. Open Intellij (if you are not in the welcome screen, click `File` > `Close Project` to close the existing project first)
 1. Open the project into Intellij as follows:
