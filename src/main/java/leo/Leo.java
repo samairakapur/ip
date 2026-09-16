@@ -19,6 +19,20 @@ import java.util.stream.IntStream;
  * {@link Ui}/{@link GuiUi} passed in.
  */
 public class Leo {
+    // A-BetterGui: a small rotating set of friendly closing lines shown
+    // after a task is successfully added (see pickFlourish/
+    // handleTodo/handleDeadline/handleEvent below) - purely decorative,
+    // appended as an extra line after the existing required output, so
+    // it never changes any of the wording other code (or a test) might
+    // depend on.
+    private static final String[] TASK_ADDED_FLOURISHES = {
+            "You're on a roll! 🎉",
+            "Nice, one step closer to done.",
+            "Look at you, staying organised!",
+            "Small steps add up - great work.",
+            "That's another one sorted."
+    };
+
     private final Ui ui;
     private final TaskList tasks;
 
@@ -406,7 +420,21 @@ public class Leo {
             lines.add("Note: this looks like a task you already have - I've added it anyway.");
         }
 
+        lines.add(pickFlourish());
+
         outputUi.showMessage(lines.toArray(new String[0]));
+    }
+
+    /**
+     * Picks a friendly closing line at random, shown after a task is
+     * successfully added (see {@link #TASK_ADDED_FLOURISHES}) - purely
+     * decorative, so which one shows on any given call is unimportant.
+     *
+     * @return a randomly-chosen flourish line
+     */
+    private String pickFlourish() {
+        int index = (int) (Math.random() * TASK_ADDED_FLOURISHES.length);
+        return TASK_ADDED_FLOURISHES[index];
     }
 
     /**

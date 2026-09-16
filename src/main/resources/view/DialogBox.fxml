@@ -20,7 +20,8 @@
 <fx:root type="javafx.scene.layout.HBox" alignment="TOP_RIGHT" maxHeight="-Infinity" minHeight="-Infinity"
          xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <Label fx:id="dialog" contentDisplay="CENTER" prefWidth="270.0" wrapText="true"/>
+        <Label fx:id="dialog" contentDisplay="CENTER" prefWidth="270.0" wrapText="true"
+               styleClass="dialog-label"/>
         <ImageView fx:id="displayPicture" fitHeight="60.0" fitWidth="60.0" preserveRatio="true"/>
     </children>
     <padding>

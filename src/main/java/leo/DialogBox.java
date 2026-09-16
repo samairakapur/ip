@@ -38,7 +38,7 @@ public class DialogBox extends HBox {
     @FXML
     private ImageView displayPicture;
 
-    private DialogBox(String text, Image image, boolean isError) {
+    private DialogBox(String text, Image image, boolean isError, boolean isUser) {
         try {
             FXMLLoader fxmlLoader =
                     new FXMLLoader(DialogBox.class.getResource("/view/DialogBox.fxml"));
@@ -51,6 +51,12 @@ public class DialogBox extends HBox {
 
         dialog.setText(text);
         displayPicture.setImage(image);
+
+        // A-BetterGui: colour-codes the bubble by who sent it (see
+        // theme.css's .user-bubble/.leo-bubble) - both style classes
+        // are harmless to apply unconditionally since only one is ever
+        // added per instance.
+        dialog.getStyleClass().add(isUser ? "user-bubble" : "leo-bubble");
 
         if (isError) {
             dialog.setStyle(ERROR_STYLE);
@@ -81,7 +87,7 @@ public class DialogBox extends HBox {
      * @return the dialog box
      */
     public static DialogBox getUserDialog(String text, Image image) {
-        return new DialogBox(text, image, false);
+        return new DialogBox(text, image, false, true);
     }
 
     /**
@@ -96,7 +102,7 @@ public class DialogBox extends HBox {
      * @return the dialog box
      */
     public static DialogBox getLeoDialog(String text, Image image, boolean isError) {
-        DialogBox dialogBox = new DialogBox(text, image, isError);
+        DialogBox dialogBox = new DialogBox(text, image, isError, false);
         dialogBox.flip();
         return dialogBox;
     }
