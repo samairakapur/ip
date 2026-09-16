@@ -83,3 +83,7 @@ Example: `bye`
 | Delete | `delete INDEX` | `delete 2` |
 | Find | `find KEYWORD` | `find book` |
 | Exit | `bye` | `bye` |
+
+## Troubleshooting
+
+**"UnsupportedClassVersionError" or "class file version" error** — this means your installed Java is older than 17. Run `java -version` to check, and install a newer JDK if needed.
