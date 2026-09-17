@@ -15,7 +15,20 @@ public class Event extends Task {
             DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
 
     private static final DateTimeFormatter OUTPUT_FORMAT =
-            DateTimeFormatter.ofPattern("MMM dd yyyy, h:mma");
+            DateTimeFormatter.ofPattern("MMM dd yyyy, h:mm");
+
+    /**
+     * Returns "AM" or "PM" for the given date/time, computed directly
+     * from the hour rather than relying on {@link DateTimeFormatter}'s
+     * locale-dependent "a" pattern, whose letter case can vary between
+     * JDK versions.
+     *
+     * @param dateTime the date/time to check
+     * @return "AM" if before noon, "PM" otherwise
+     */
+    private static String amOrPm(LocalDateTime dateTime) {
+        return dateTime.getHour() < 12 ? "AM" : "PM";
+    }
 
     /**
      * Creates a new, not-done event.
@@ -62,7 +75,7 @@ public class Event extends Task {
     @Override
     public String toString() {
         return super.toString()
-                + " (from: " + from.format(OUTPUT_FORMAT)
-                + " to: " + to.format(OUTPUT_FORMAT) + ")";
+                + " (from: " + from.format(OUTPUT_FORMAT) + amOrPm(from)
+                + " to: " + to.format(OUTPUT_FORMAT) + amOrPm(to) + ")";
     }
 }
