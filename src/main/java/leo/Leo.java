@@ -130,30 +130,7 @@ public class Leo {
         String arguments = Parser.getArguments(input);
 
         try {
-            if (commandWord.equals("bye")) {
-                outputUi.showGoodbye();
-            } else if (commandWord.equals("list")) {
-                handleList(outputUi);
-            } else if (commandWord.equals("mark")) {
-                handleMark(arguments, outputUi);
-            } else if (commandWord.equals("unmark")) {
-                handleUnmark(arguments, outputUi);
-            } else if (commandWord.equals("todo")) {
-                handleTodo(arguments, outputUi);
-            } else if (commandWord.equals("deadline")) {
-                handleDeadline(arguments, outputUi);
-            } else if (commandWord.equals("event")) {
-                handleEvent(arguments, outputUi);
-            } else if (commandWord.equals("delete")) {
-                handleDelete(arguments, outputUi);
-            } else if (commandWord.equals("find")) {
-                handleFind(arguments, outputUi);
-            } else {
-                throw new LeoException(
-                        "Sorry, I don't understand what you are trying to say."
-                );
-            }
-
+            dispatch(commandWord, arguments, outputUi);
         } catch (LeoException e) {
             outputUi.showError(e.getMessage());
         } catch (IOException e) {
@@ -163,6 +140,50 @@ public class Leo {
         } catch (DateTimeParseException e) {
             outputUi.showError(
                     "Please enter dates and times in the format yyyy-MM-dd HHmm."
+            );
+        }
+    }
+
+    /**
+     * Routes a command word to the handler responsible for it - kept
+     * separate from {@link #processCommand} so that method's own job
+     * (running the chosen handler, then turning any exception it
+     * throws into a user-facing error message) stays a single, easy
+     * to follow block, instead of being interleaved with this routing
+     * logic.
+     *
+     * @param commandWord the command name, e.g. "todo" in "todo book"
+     * @param arguments text after the command word, e.g. "book" in
+     *     "todo book"
+     * @param outputUi where the handler's reply (or error) should go
+     * @throws LeoException if the command word is not recognised, or
+     *     the chosen handler rejects its arguments
+     * @throws IOException if the chosen handler cannot save the task
+     *     list
+     */
+    private void dispatch(String commandWord, String arguments, Ui outputUi)
+            throws LeoException, IOException {
+        if (commandWord.equals("bye")) {
+            outputUi.showGoodbye();
+        } else if (commandWord.equals("list")) {
+            handleList(outputUi);
+        } else if (commandWord.equals("mark")) {
+            handleMark(arguments, outputUi);
+        } else if (commandWord.equals("unmark")) {
+            handleUnmark(arguments, outputUi);
+        } else if (commandWord.equals("todo")) {
+            handleTodo(arguments, outputUi);
+        } else if (commandWord.equals("deadline")) {
+            handleDeadline(arguments, outputUi);
+        } else if (commandWord.equals("event")) {
+            handleEvent(arguments, outputUi);
+        } else if (commandWord.equals("delete")) {
+            handleDelete(arguments, outputUi);
+        } else if (commandWord.equals("find")) {
+            handleFind(arguments, outputUi);
+        } else {
+            throw new LeoException(
+                    "Sorry, I don't understand what you are trying to say."
             );
         }
     }
@@ -339,6 +360,29 @@ public class Leo {
      */
     private void handleEvent(String arguments, Ui outputUi)
             throws LeoException, IOException {
+        String[] parsed = parseEventArguments(arguments);
+        Event event = new Event(parsed[0], parsed[1], parsed[2]);
+        boolean isDuplicate = tasks.containsSimilar(event);
+        tasks.add(event);
+        Storage.saveTasks(tasks.toArray(), tasks.size());
+
+        showTaskAddedConfirmation(outputUi, isDuplicate);
+    }
+
+    /**
+     * Parses and validates an event command's arguments, kept
+     * separate from {@link #handleEvent} so that method reads as
+     * "parse, then add the task", rather than mixing every validation
+     * check in with the actual task-adding logic.
+     *
+     * @param arguments text after the command word, in the form
+     *     "DESCRIPTION /from START /to END"
+     * @return an array of the parsed description, start time, and end
+     *     time, in that order - each already trimmed and confirmed
+     *     non-empty
+     * @throws LeoException if the arguments are malformed
+     */
+    private String[] parseEventArguments(String arguments) throws LeoException {
         if (arguments.isEmpty() || !arguments.contains(" /from ")) {
             throw new LeoException(
                     "Please enter an event in this format: event DESCRIPTION /from START /to END"
@@ -389,12 +433,7 @@ public class Leo {
             );
         }
 
-        Event event = new Event(description, from, to);
-        boolean isDuplicate = tasks.containsSimilar(event);
-        tasks.add(event);
-        Storage.saveTasks(tasks.toArray(), tasks.size());
-
-        showTaskAddedConfirmation(outputUi, isDuplicate);
+        return new String[] {description, from, to};
     }
 
     /**
